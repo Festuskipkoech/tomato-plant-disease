@@ -191,6 +191,13 @@ async def home():
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
+            
+            .footer {
+                text-align: center;
+                margin-top: 30px;
+                color: #999;
+                font-size: 14px;
+            }
         </style>
     </head>
     <body>
@@ -217,6 +224,9 @@ async def home():
                 <div class="result-title">Detection Result:</div>
                 <div class="disease-name" id="diseaseName"></div>
                 <div class="confidence" id="confidence"></div>
+            </div>
+            <div class="footer">
+                Crafted by Martial Jenga Labs
             </div>
         </div>
         
@@ -292,6 +302,16 @@ async def predict(file: UploadFile = File(...)):
         predictions = model.predict(processed_image)
         predicted_class_idx = np.argmax(predictions[0])
         confidence = float(np.max(predictions[0]) * 100)
+        
+        # Confidence threshold check
+        CONFIDENCE_THRESHOLD = 70.0
+        
+        if confidence < CONFIDENCE_THRESHOLD:
+            return {
+                "disease": "Unknown - Low Confidence",
+                "confidence": round(confidence, 2)
+            }
+        
         disease_name = class_names[predicted_class_idx]
         
         # Format disease name (remove prefix, make readable)
